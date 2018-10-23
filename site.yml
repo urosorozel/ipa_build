@@ -96,7 +96,7 @@
     copy:
       src: files/81-post-ironic
       dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/post-install.d
-      mode: 755
+      mode: 0755
     become_user: ubuntu
 
   - name: Remove dhcp-all-interfaces from deps
