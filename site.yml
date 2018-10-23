@@ -49,9 +49,75 @@
   - name: Install PIP virtualenv
     pip:
       name: virtualenv
+#  - name: Join tasks
+#    block:
+  - name: Create venv
+    shell: |
+       virtualenv dib
+    become_user: ubuntu
+    args:
+      creates: ~/dib
+
+#  - name: Clone DIB
+#    git:
+#      repo: "https://git.openstack.org/openstack/diskimage-builder"
+#      dest: ~/dib/diskimage-builder
+#    become_user: ubuntu
+
+#  - name: Run PIP
+#    shell: |
+#      source bin/activate
+#      cd ~/dib/diskimage-builder
+#      pip install -e .
+#    args:
+#      chdir: ~/dib
+#    become_user: ubuntu
 
   - name: Install diskimage-builder
     pip:
       name: diskimage-builder
       virtualenv: ~/dib
+    become_user: ubuntu
+
+
+  - name: Create static include
+    file:
+      dest:  ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/bin
+      state: directory
+    become_user: ubuntu
+
+  - name: Copy files to elements
+    copy:
+      src: files/udev-bootif.sh
+      dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/bin
+    become_user: ubuntu
+
+  - name: Copy files to elements
+    copy:
+      src: files/81-post-ironic
+      dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/post-install.d
+      mode: 755
+    become_user: ubuntu
+
+  - name: Remove dhcp-all-interfaces from deps
+    lineinfile:
+      dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/element-deps
+      state: absent
+      regexp: '^dhcp-all-interfaces$'
+    become_user: ubuntu
+
+  - name: Create image
+    shell: |
+      source ~/dib/bin/activate
+      disk-image-create -a amd64 -o ubuntu-amd64-bionic.qcow2 --logfile build.log  ubuntu ironic-agent  proliant-tools ilo baremetal devuser
+    environment:
+      DIB_DEV_USER_SHELL: /bin/bash
+      DIB_DEV_USER_USERNAME: devuser
+      DIB_DEV_USER_PASSWORD: devuser
+      DIB_DEV_USER_PWDLESS_SUDO: yes
+      DIB_RELEASE: bionic
+      DIB_DEBUG_TRACE: 1
+    args:
+      chdir: ~/
+      executable: /bin/bash
     become_user: ubuntu
