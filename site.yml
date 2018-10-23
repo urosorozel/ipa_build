@@ -1,0 +1,26 @@
+---
+- name: Ubuntu 16 support
+  hosts: ipa
+  user: ubuntu
+  gather_facts: false
+  vars:
+    http_proxy:
+  pre_tasks:
+  - name: Install python2 for Ansible
+    raw: bash -c "test -e /usr/bin/python || ( export http_proxy={{http_proxy}};apt -qqy update && apt install -qqy python-minimal python2.7)"
+    register: output
+    changed_when:
+    - output.stdout != ""
+    - output.stdout != "\r\n"
+  - name: Gathering Facts
+    setup:
+
+  tasks:
+  - name: Create a new file for APT config
+    file: path=/etc/apt/apt.conf.d/10disable-auto-apt  state=touch
+
+  - name: Disable Automatic APT
+    lineinfile:
+      dest: /etc/apt/apt.conf.d/10disable-auto-apt
+      line: 'APT::Periodic::Enable "0";'
+      state: present
