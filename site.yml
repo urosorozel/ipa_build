@@ -116,7 +116,7 @@
       DIB_DEV_USER_PASSWORD: devuser
       DIB_DEV_USER_PWDLESS_SUDO: yes
       DIB_RELEASE: bionic
-      DIB_DEBUG_TRACE: 1
+      DIB_DEBUG_TRACE: "{{ jenkins_debug | default(0) }}"
     args:
       chdir: ~/
       executable: /bin/bash
