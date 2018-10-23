@@ -15,7 +15,7 @@ rm /lib/systemd/network/99-default.link
 systemctl disable  systemd-timesyncd.service
 
 # enable ssh password
-sed -i 's|PasswordAuthentication no|PasswordAuthentication yes|g' /etc/ssh/sshd_config`
+sed -i 's|PasswordAuthentication no|PasswordAuthentication yes|g' /etc/ssh/sshd_config
 # Disable exec on usr/lib/systemd/system/ironic-python-agent.service
 chmod -x /usr/lib/systemd/system/ironic-python-agent.service
 
