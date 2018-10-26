@@ -43,8 +43,8 @@ network:
             interfaces:
             - port1
             parameters:
-                mode: active-backup
-                primary: port1
+                mode: 802.3ad
+                mii-monitor-interval: 100
 EOF
 
 cat > /etc/modprobe.d/systemd.conf << EOF
