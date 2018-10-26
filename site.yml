@@ -121,3 +121,15 @@
       chdir: ~/
       executable: /bin/bash
     become_user: ubuntu
+
+  - name: Fetch images ramdisk
+    fetch:
+      src: ubuntu-amd64-bionic.initramfs
+      dest: "/data/ipa_images/{{ lookup('env','BUILD_NUMBER') }}_ubuntu-amd64-bionic.initramfs"
+      flat: yes
+
+  - name: Fetch images kernel
+    fetch:
+      src: ubuntu-amd64-bionic.kernel
+      dest: "/data/ipa_images/{{ lookup('env','BUILD_NUMBER') }}_ubuntu-amd64-bionic.kernel"
+      flat: yes
