@@ -133,3 +133,9 @@
       src: ubuntu-amd64-bionic.kernel
       dest: "/data/ipa_images/{{ lookup('env','BUILD_NUMBER') }}_ubuntu-amd64-bionic.kernel"
       flat: yes
+
+  - name: Fetch build.log
+    fetch:
+      src: build.log
+      dest: "{{ lookup('env','BUILD_NUMBER') }}_build.log"
+      flat: yes
