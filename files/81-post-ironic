@@ -33,11 +33,16 @@ chmod +x /bin/udev-bootif.sh
 cat > /etc/netplan/bond.yaml << EOF
 network:
     version: 2
+    renderer: networkd
     ethernets:
         port1:
+            dhcp4: false
+            dhcp6: false
             match:
                 name: enoboot0
         port2:
+            dhcp4: false
+            dhcp6: false
             match:
                 name: enoboot1
     bonds:
@@ -69,5 +74,6 @@ options bonding max_bonds=0
 EOF
 
 cat > /etc/modprobe.d/bonding.conf << EOF
-options bonding mode=802.3ad miimon=100 primary=enoboot0 max_bonds=0
+alias bond0 bonding
+options bonding mode=4 lacp_rate=1 xmit_hash_policy=2 miimon=100 downdelay=200 updelay=200 max_bonds=0
 EOF
