@@ -100,10 +100,9 @@
     become_user: ubuntu
 
   - name: Add packages
-    copy:
-      dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/package-installs.yaml
-      content: |
-        python-netaddr:
+    lineinfile:
+      path: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ubuntu/package-installs.yaml
+      line: "python-netaddr:"
     become_user: ubuntu
 
   - name: Remove dhcp-all-interfaces from deps
