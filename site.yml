@@ -104,6 +104,7 @@
       dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/package-installs.yaml
       content: |
         python-netaddr:
+    become_user: ubuntu
 
   - name: Remove dhcp-all-interfaces from deps
     lineinfile:
