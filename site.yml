@@ -99,6 +99,12 @@
       mode: 0755
     become_user: ubuntu
 
+  - name: Add packages
+    copy:
+      dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/package-installs.yaml
+      content: |
+        python-netaddr:
+
   - name: Remove dhcp-all-interfaces from deps
     lineinfile:
       dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/element-deps
