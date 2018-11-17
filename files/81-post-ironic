@@ -37,11 +37,15 @@ network:
         port1:
             match:
                 name: enoboot0
+        port2:
+            match:
+                name: enoboot1
     bonds:
         bond0:
             dhcp4: yes
             interfaces:
             - port1
+            - port2
             parameters:
                 mode: 802.3ad
                 mii-monitor-interval: 100
