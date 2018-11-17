@@ -67,3 +67,7 @@ cat > /etc/modprobe.d/systemd.conf << EOF
 
 options bonding max_bonds=0
 EOF
+
+cat > /etc/modprobe.d/bonding.conf << EOF
+options bonding mode=802.3ad miimon=100 primary=enoboot0 max_bonds=0
+EOF
