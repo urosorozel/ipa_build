@@ -73,7 +73,7 @@ for item in cmdline_list:
    if item[:3] == "ip=":
      ip_var = item[3:]
    if item[:7] == "BOOTIF=":
-     boot_mac = item[10:].replace("-",":").lower()
+     boot_mac = item[10:].replace("-",":").lower().strip()
 net_details = ip_var.split(":")
 ip_address = net_details[0]
 tftp_server = net_details[1]
