@@ -114,7 +114,7 @@
 
   - name: Get DIB_RELEASE variable
     set_fact:
-      ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(ubuntu_default_release) }}"
+      ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(ubuntu_default_release, True) }}"
 
   - name: Create image
     shell: |
