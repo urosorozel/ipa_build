@@ -19,6 +19,14 @@ sed -i 's|PasswordAuthentication no|PasswordAuthentication yes|g' /etc/ssh/sshd_
 # Disable exec on usr/lib/systemd/system/ironic-python-agent.service
 chmod -x /usr/lib/systemd/system/ironic-python-agent.service
 
+# Delay start because of LACP bonding
+echo "Add delay service start for IPA"
+mkdir -p /etc/systemd/system/ironic-python-agent.service.d
+cat > /etc/systemd/system/ironic-python-agent.service.d/delay.conf <<EOF
+[Service]
+ExecStartPre=/bin/sleep 45
+EOF
+
 echo "Add udev rules service"
 mkdir /etc/systemd/system/systemd-udevd.service.d
 cat > /etc/systemd/system/systemd-udevd.service.d/10-bootif.conf  <<EOF
@@ -36,13 +44,9 @@ network:
     renderer: networkd
     ethernets:
         port1:
-            dhcp4: false
-            dhcp6: false
             match:
                 name: enoboot0
         port2:
-            dhcp4: false
-            dhcp6: false
             match:
                 name: enoboot1
     bonds:
@@ -50,7 +54,6 @@ network:
             dhcp4: yes
             interfaces:
             - port1
-            - port2
             parameters:
                 mode: 802.3ad
                 mii-monitor-interval: 100
@@ -71,9 +74,4 @@ cat > /etc/modprobe.d/systemd.conf << EOF
 # networkd/NM/etc. Therefore disable bond0 creation.
 
 options bonding max_bonds=0
-EOF
-
-cat > /etc/modprobe.d/bonding.conf << EOF
-alias bond0 bonding
-options bonding mode=4 lacp_rate=1 xmit_hash_policy=2 miimon=100 downdelay=200 updelay=200 max_bonds=0
 EOF
