@@ -37,7 +37,7 @@ EOF
 echo "Add udev script exe permissions"
 
 chmod +x /bin/udev-bootif.sh
-
+mkdir /etc/netplan
 cat > /etc/netplan/bond.yaml << EOF
 network:
     version: 2

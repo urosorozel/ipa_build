@@ -112,16 +112,20 @@
       regexp: '^dhcp-all-interfaces$'
     become_user: ubuntu
 
-  - name: Create image
+  - name: Get DIB_RELEASE variable
+    set_fact:
+      ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(ubuntu_default_release) }}"
+
+- name: Create image
     shell: |
       source ~/dib/bin/activate
-      disk-image-create -a amd64 -o ubuntu-amd64-bionic.qcow2 --logfile build.log  ubuntu ironic-agent  proliant-tools ilo baremetal devuser
+      disk-image-create -a amd64 -o ubuntu-amd64-{{ ubuntu_release }}.qcow2 --logfile build.log  ubuntu ironic-agent  proliant-tools ilo baremetal devuser
     environment:
       DIB_DEV_USER_SHELL: /bin/bash
       DIB_DEV_USER_USERNAME: devuser
       DIB_DEV_USER_PASSWORD: devuser
       DIB_DEV_USER_PWDLESS_SUDO: yes
-      DIB_RELEASE: bionic
+      DIB_RELEASE: "{{ ubuntu_release }}"
       DIB_DEBUG_TRACE: "{{ jenkins_debug | default(0) }}"
     args:
       chdir: ~/
@@ -130,14 +134,14 @@
 
   - name: Fetch images ramdisk
     fetch:
-      src: ubuntu-amd64-bionic.initramfs
-      dest: "/data/ipa_images/{{ lookup('env','BUILD_NUMBER') }}_ubuntu-amd64-bionic.initramfs"
+      src: ubuntu-amd64-{{ ubuntu_release }}.initramfs
+      dest: "/data/ipa_images/{{ lookup('env','BUILD_NUMBER') }}_ubuntu-amd64-{{ ubuntu_release }}.initramfs"
       flat: yes
 
   - name: Fetch images kernel
     fetch:
-      src: ubuntu-amd64-bionic.kernel
-      dest: "/data/ipa_images/{{ lookup('env','BUILD_NUMBER') }}_ubuntu-amd64-bionic.kernel"
+      src: ubuntu-amd64-{{ ubuntu_release }}.kernel
+      dest: "/data/ipa_images/{{ lookup('env','BUILD_NUMBER') }}_ubuntu-amd64-{{ ubuntu_release }}.kernel"
       flat: yes
 
   - name: Fetch build.log
