@@ -54,10 +54,45 @@ network:
             dhcp4: yes
             interfaces:
             - port1
+            - port2
             parameters:
                 mode: 802.3ad
                 mii-monitor-interval: 100
 EOF
+
+cat > /bin/netplan-static.py << "EOF"
+#!/usr/bin/env python
+
+import yaml
+from netaddr import *
+
+cmdline = open('/proc/cmdline', 'rb').read().replace(b'\0', b' ').decode()
+#cmdline = "BOOT_IMAGE=/boot/vmlinuz-4.4.0-116-generic root=/dev/md126p1 ro rd.fstab=no acpi=noirq noapic cgroup_enable=memory swapaccount=1 quiet ip=192.168.1.100:192.168.10.10:255.255.255.0:192.168.1.1"
+
+cmdline_list = cmdline.split(" ")
+for item in cmdline_list:
+   if item[:3] == "ip=":
+     ip_var = item[3:]
+
+net_details = ip_var.split(":")
+ip_address = net_details[0]
+tftp_server = net_details[1]
+netmask = net_details[2]
+gateway = net_details[3]
+
+print("IP: %s TFTP: %s MASK: %s GW: %s" % (ip_address,tftp_server,netmask,gateway))
+ip_network = IPNetwork(ip_address,netmask)
+
+netplan = yaml.load(open("/etc/netplan/bond.yaml", "r"))
+del netplan['network']['bonds']['bond0']['dhcp4']
+
+netplan['network']['bonds']['bond0']['addresses'] = [str(ip_network)]
+netplan['network']['bonds']['bond0']['gateway4'] = gateway
+
+with open('/etc/netplan/bond.yaml', 'w') as yaml_file:
+    yaml.dump(netplan, yaml_file, default_flow_style=False)
+EOF
+chmod +x /bin/netplan-static.py
 
 cat > /etc/modprobe.d/systemd.conf << EOF
 #  This file is part of systemd.

@@ -8,3 +8,6 @@ cat > /etc/udev/rules.d/70-bootif.rules  <<EOF
 SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="$BOOT_MAC", ATTR{type}=="1", NAME="enoboot0"
 SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="$SECONDARY", ATTR{type}=="1", NAME="enoboot1"
 EOF
+
+# update netplan yaml with static ip
+/bin/netplan-static.py
