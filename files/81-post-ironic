@@ -77,17 +77,17 @@ for item in cmdline_list:
 net_details = ip_var.split(":")
 ip_address = net_details[0]
 tftp_server = net_details[1]
-netmask = net_details[2]
-gateway = net_details[3]
+gateway = net_details[2]
+netmask = net_details[3]
 
 print("IP: %s TFTP: %s MASK: %s GW: %s" % (ip_address,tftp_server,netmask,gateway))
-ip_network = IPNetwork(ip_address,netmask)
+ip_network = IPNetwork(ip_address + "/" + netmask)
 
 netplan = yaml.load(open("/etc/netplan/bond.yaml", "r"))
 del netplan['network']['bonds']['bond0']['dhcp4']
 
 netplan['network']['bonds']['bond0']['addresses'] = [str(ip_network)]
-netplan['network']['bonds']['bond0']['gateway4'] = gateway
+netplan['network']['bonds']['bond0']['gateway4'] = str(gateway)
 
 with open('/etc/netplan/bond.yaml', 'w') as yaml_file:
     yaml.dump(netplan, yaml_file, default_flow_style=False)
