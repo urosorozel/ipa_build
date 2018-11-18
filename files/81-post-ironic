@@ -45,10 +45,10 @@ network:
     ethernets:
         port1:
             match:
-                macaddress:
+                name: enoboot0
         port2:
             match:
-                macaddress:
+                name: enoboot1
     bonds:
         bond0:
             dhcp4: yes
@@ -92,8 +92,8 @@ del netplan['network']['bonds']['bond0']['dhcp4']
 
 netplan['network']['bonds']['bond0']['addresses'] = [str(ip_network)]
 netplan['network']['bonds']['bond0']['gateway4'] = str(gateway)
-netplan["network"]["ethernets"]["port1"]["match"]["macaddress"] = str(boot_mac)
-netplan["network"]["ethernets"]["port2"]["match"]["macaddress"] = str(mac)
+#netplan["network"]["ethernets"]["port1"]["match"]["macaddress"] = str(boot_mac)
+#netplan["network"]["ethernets"]["port2"]["match"]["macaddress"] = str(mac)
 
 with open('/etc/netplan/bond.yaml', 'w') as yaml_file:
     yaml.dump(netplan, yaml_file, default_flow_style=False)
