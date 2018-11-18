@@ -116,7 +116,7 @@
     set_fact:
       ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(ubuntu_default_release) }}"
 
-- name: Create image
+  - name: Create image
     shell: |
       source ~/dib/bin/activate
       disk-image-create -a amd64 -o ubuntu-amd64-{{ ubuntu_release }}.qcow2 --logfile build.log  ubuntu ironic-agent  proliant-tools ilo baremetal devuser
