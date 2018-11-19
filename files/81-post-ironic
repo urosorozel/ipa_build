@@ -65,10 +65,10 @@ iface enoboot0 inet manual
     bond-master bond0
     mtu 1500
 
-auto enoboot1
-iface enoboot1 inet manual
-    bond-master bond0
-    mtu 1500
+#auto enoboot1
+#iface enoboot1 inet manual
+#    bond-master bond0
+#    mtu 1500
 
 auto bond0
 iface bond0 inet dhcp
