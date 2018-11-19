@@ -59,6 +59,26 @@ network:
                 mode: 802.3ad
                 mii-monitor-interval: 100
 EOF
+cat > /etc/network/interfaces.d/bond0.cfg <<EOF
+auto enoboot0
+iface enoboot0 inet manual
+    bond-master bond0
+    mtu 1500
+
+auto enoboot1
+iface enoboot1 inet manual
+    bond-master bond0
+    mtu 1500
+
+auto bond0
+iface bond0 inet dhcp
+    bond-mode 4
+    bond_xmit_hash_policy layer3+4
+    bond-lacp-rate 1
+    bond-miimon 100
+    bond-slaves none
+    mtu 1500
+EOF
 cat > /bin/netplan-static.py << "EOF"
 #!/usr/bin/env python
 
