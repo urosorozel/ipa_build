@@ -7,8 +7,8 @@
     "{{ proxy_env }}"
 
   vars:
-    jenkins_build_number: "{{ lookup('env','BUILD_NUMBER') | default(default_jenkins_build_number, True }}"
-    dib_debug: "{{ lookup('env','DIB_DEBUG') | default(default_dib_debug, True }}"
+    jenkins_build_number: "{{ lookup('env','BUILD_NUMBER') | default(default_jenkins_build_number, True) }}"
+    dib_debug: "{{ lookup('env','DIB_DEBUG') | default(default_dib_debug, True) }}"
     ipa_strategy: "{{ lookup('env', 'IPA_STRATEGY') | default(default_ipa_strategy, True) }}"
     ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
     dib_include_elements: "ubuntu ironic-agent  proliant-tools ilo baremetal devuser"
