@@ -7,10 +7,10 @@
     "{{ proxy_env }}"
 
   vars:
-    jenkins_build_number: "{{ lookup('env','BUILD_NUMBER') }}"
-    dib_debug: "{{ lookup('env','DIB_DEBUG') | default(0) }}"
-    ipa_strategy: "{{ lookup('env', 'IPA_STRATEGY') | default('dhcp') }}"
-    ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(ubuntu_default_release, True) }}"
+    jenkins_build_number: "{{ lookup('env','BUILD_NUMBER') | default(default_jenkins_build_number, True }}"
+    dib_debug: "{{ lookup('env','DIB_DEBUG') | default(default_dib_debug, True }}"
+    ipa_strategy: "{{ lookup('env', 'IPA_STRATEGY') | default(default_ipa_strategy, True) }}"
+    ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
     dib_include_elements: "ubuntu ironic-agent  proliant-tools ilo baremetal devuser"
     dib_environment:
       DIB_DEV_USER_SHELL: /bin/bash
@@ -108,7 +108,7 @@
   - name: Create image
     shell: |
       source ~/dib/bin/activate
-      disk-image-create -a amd64 -o ubuntu-amd64-{{ ubuntu_release }}.qcow2 --logfile build.log {{ dib_include_elements }}
+      disk-image-create -a amd64 -o ubuntu-amd64-{{ ubuntu_release }}.qcow2 --logfile build.log {{ dib_include_elements }} {% if ipa_strategy == 'dhcp' %} dhcp-all-interfaces{% endif %}
     environment: "{{ dib_environment }}"
     args:
       chdir: ~/

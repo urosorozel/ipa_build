@@ -1,2 +1,4 @@
-ubuntu_default_release: xenial
-
+default_ubuntu_release: "xenial"
+default_ipa_strategy: "dhcp"
+default_jenkins_build_number: "no_build_number"
+default_dib_debug: False
