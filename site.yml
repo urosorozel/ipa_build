@@ -108,7 +108,8 @@
   - name: Create image
     shell: |
       source ~/dib/bin/activate
-      disk-image-create -a amd64 -o ubuntu-amd64-{{ ubuntu_release }}.qcow2 --logfile build.log {{ dib_include_elements }} {% if ipa_strategy == 'dhcp' %} dhcp-all-interfaces{% endif %}
+      disk-image-create -a amd64 -o ubuntu-amd64-{{ ubuntu_release }}.qcow2 --logfile build.log {{ dib_include_elements }}
+      # {% if ipa_strategy == 'dhcp' %}dhcp-all-interfaces{% endif %}
     environment: "{{ dib_environment }}"
     args:
       chdir: ~/
