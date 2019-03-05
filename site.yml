@@ -116,19 +116,19 @@
     become_user: ubuntu
 
   - name: Fetch images ramdisk
-    fetch:
+    synchronize:
       src: ubuntu-amd64-{{ ubuntu_release }}.initramfs
       dest: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.initramfs"
-      flat: yes
+      mode: pull
 
   - name: Fetch images kernel
-    fetch:
+    synchronize:
       src: ubuntu-amd64-{{ ubuntu_release }}.kernel
       dest: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel"
-      flat: yes
+      mode: pull
 
   - name: Fetch build.log
-    fetch:
+    synchronize:
       src: build.log
       dest: "{{ jenkins_build_number }}_build.log"
-      flat: yes
+      mode: pull
