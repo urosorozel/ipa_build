@@ -101,6 +101,13 @@
       state: directory
     become_user: ubuntu
 
+  - name: Copy files to elements
+    copy:
+      src: files/82-post-ironic
+      dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/post-install.d
+      mode: 0755
+    become_user: ubuntu
+
   - name: Include lacp bond hack with static ip configuration
     include: static_lacp_bond_ipa.yml
     when: ipa_strategy == "static"

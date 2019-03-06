@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo "Create ipa-rescue-config directory and file"
+mkdir /etc/ipa-rescue-config
+touch /etc/ipa-rescue-config/ipa-rescue-password
+
+echo "Adding message to /etc/issue"
+echo "^[[0;32mOpenstack Ironic IPA^[[0m" >> /etc/issue
