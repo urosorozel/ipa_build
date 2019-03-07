@@ -20,3 +20,8 @@ cat > /etc/issue <<EOF
 ██║██║  ██║╚██████╔╝██║ ╚████║██║╚██████╗
 ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝ ╚═════╝
 EOF
+
+# Allow password login for rescue user
+sed -i 's|PasswordAuthentication no|PasswordAuthentication yes|g' /etc/ssh/sshd_config
+# fix rescue user creation wheel group doesn't exist on ubuntu
+sed -i 's|wheel|sudo|g'  ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/usr/local/bin/ironic-python-agent-create-rescue-user.sh
