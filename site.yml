@@ -113,9 +113,10 @@
     when: ipa_strategy == "static"
 
   - name: Update rescue user script
-    shell: |
-      # fix rescue user creation wheel group doesn't exist on ubuntu
-      sed -i 's|wheel|sudo|g'  ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/usr/local/bin/ironic-python-agent-create-rescue-user.sh
+    replace: 
+      path: dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/usr/local/bin/ironic-python-agent-create-rescue-user.sh
+      regexp: "wheel"
+      replace: "sudo"
 
   - name: Create image
     shell: |
