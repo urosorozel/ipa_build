@@ -140,3 +140,5 @@
       src: build.log
       dest: "{{ jenkins_build_number }}_build.log"
       mode: pull
+    tags:
+      - fetch-logs
