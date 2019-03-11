@@ -4,9 +4,6 @@ echo "Create ipa-rescue-config directory and file"
 mkdir /etc/ipa-rescue-config
 touch /etc/ipa-rescue-config/ipa-rescue-password
 
-echo "Add rescue user"
-useradd rescue
-
 echo "Disable ureadahead"
 systemctl disable ureadahead.service
 
