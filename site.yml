@@ -11,7 +11,7 @@
     dib_debug: "{{ lookup('env','DIB_DEBUG') | default(default_dib_debug, True) }}"
     ipa_strategy: "{{ lookup('env', 'IPA_STRATEGY') | default(default_ipa_strategy, True) }}"
     ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
-    dib_include_elements: "ubuntu ironic-agent  proliant-tools ilo baremetal devuser"
+    dib_include_elements: "ubuntu ironic-agent  proliant-tools ilo baremetal devuser ipa-extra-hardware"
     dib_environment:
       DIB_DEV_USER_SHELL: /bin/bash
       DIB_DEV_USER_USERNAME: devuser
@@ -19,7 +19,7 @@
       DIB_DEV_USER_PWDLESS_SUDO: yes
       DIB_RELEASE: "{{ ubuntu_release }}"
       DIB_DEBUG_TRACE: "{{ dib_debug }}"
-
+      ELEMENTS_PATH: "~/dib/extra/elements"
   pre_tasks:
   - name: Install python2 for Ansible
     raw: bash -c "test -e /usr/bin/python || ( export http_proxy={{proxy_env.http_proxy}};apt -qqy update && apt install -qqy python-minimal python2.7)"
@@ -73,6 +73,12 @@
     args:
       creates: ~/dib
 
+  - name: Copy extra elements
+    synchronize:
+      src: files/extra
+      dest: ~/dib/
+    args:
+      creates: ~/dib/extra
 #  - name: Clone DIB
 #    git:
 #      repo: "https://git.openstack.org/openstack/diskimage-builder"

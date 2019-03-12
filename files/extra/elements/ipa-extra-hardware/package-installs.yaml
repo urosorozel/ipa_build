@@ -1,0 +1,12 @@
+biosdevname:
+ethtool:
+fio:
+hdparm:
+infiniband-diags:
+ipmitool:
+lldpad:
+lshw:
+pciutils:
+sdparm:
+smartmontools:
+sysbench:
