@@ -77,8 +77,6 @@
     synchronize:
       src: files/extra
       dest: ~/dib/
-    args:
-      creates: ~/dib/extra
 #  - name: Clone DIB
 #    git:
 #      repo: "https://git.openstack.org/openstack/diskimage-builder"
