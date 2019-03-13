@@ -11,7 +11,7 @@
     dib_debug: "{{ lookup('env','DIB_DEBUG') | default(default_dib_debug, True) }}"
     ipa_strategy: "{{ lookup('env', 'IPA_STRATEGY') | default(default_ipa_strategy, True) }}"
     ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
-    dib_include_elements: "ubuntu ironic-agent  proliant-tools ilo baremetal devuser ipa-extra-hardware"
+    dib_include_elements: "ubuntu ironic-agent  proliant-tools ilo baremetal devuser ipa-extra-hardware raid-tools"
     dib_environment:
       DIB_DEV_USER_SHELL: /bin/bash
       DIB_DEV_USER_USERNAME: devuser

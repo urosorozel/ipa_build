@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+# Copyright 2015 Hewlett-Packard Development Company, L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+if [ ${DIB_DEBUG_TRACE:-1} -gt 0 ]; then
+    set -x
+fi
+
+set -eu
+set -o pipefail
+
+
+if [[ $DISTRO_NAME = "ubuntu" || $DISTRO_NAME = "debian" ]]; then
+    # There is no deb package for ssacli.  Install with alien.
+   echo "Add GP repository"
+   echo "deb http://downloads.linux.hpe.com/SDR/repo/mcp $(lsb_release -c -s)/current non-free" > /etc/apt/sources.list.d/mcp.list
+   echo "Install keys"
+   curl http://downloads.linux.hpe.com/SDR/hpPublicKey1024.pub | apt-key add -
+   curl http://downloads.linux.hpe.com/SDR/hpPublicKey2048.pub | apt-key add -
+   curl http://downloads.linux.hpe.com/SDR/hpPublicKey2048_key1.pub | apt-key add -
+   curl http://downloads.linux.hpe.com/SDR/hpePublicKey2048_key1.pub | apt-key add -
+   echo "Add hwraid repo"
+   #echo "deb http://hwraid.le-vert.net/ubuntu $(lsb_release -c -s) main" > /etc/apt/sources.list.d/hwraid.list
+   echo "deb http://hwraid.le-vert.net/ubuntu xenial main" > /etc/apt/sources.list.d/hwraid.list
+   echo "Install hwraid keys"
+   curl http://hwraid.le-vert.net/debian/hwraid.le-vert.net.gpg.key | apt-key add -
+   echo "Update APT cache"
+   apt update
+   echo "Install megacli"
+   apt -y install megacli
+   echo "Install ssacli"
+   apt -y install ssacli
+else
+   echo "No repos for rpm yet!"
+fi
+
+
