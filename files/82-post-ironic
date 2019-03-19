@@ -26,3 +26,6 @@ EOF
 
 # Allow password login for rescue user
 sed -i 's|PasswordAuthentication no|PasswordAuthentication yes|g' /etc/ssh/sshd_config
+
+# remove snapd
+apt --purge remove snapd
