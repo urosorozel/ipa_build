@@ -28,4 +28,5 @@ EOF
 sed -i 's|PasswordAuthentication no|PasswordAuthentication yes|g' /etc/ssh/sshd_config
 
 # remove snapd
-apt --purge remove snapd
+apt -y --purge remove snapd
+apt -y autoremove
