@@ -134,8 +134,9 @@
 
   - name: Change file permissions
     file:
-      path: ubuntu-amd64-{{ ubuntu_release }}.kernel
+      path: ~/ubuntu-amd64-{{ ubuntu_release }}.kernel
       mode: 0644
+    become_user: ubuntu
 
   - name: Fetch images ramdisk
     synchronize:
