@@ -98,7 +98,6 @@
       virtualenv: ~/dib
     become_user: ubuntu
 
-
   - name: Create static include
     file:
       dest:  ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/bin
@@ -132,6 +131,11 @@
       chdir: ~/
       executable: /bin/bash
     become_user: ubuntu
+
+  - name: Change file permissions
+    file:
+      path: ubuntu-amd64-{{ ubuntu_release }}.kernel
+      mode: 0644
 
   - name: Fetch images ramdisk
     synchronize:
