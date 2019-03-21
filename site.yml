@@ -156,6 +156,9 @@
 - name: Copy images to webserver path
   hosts: hypervisor
   gather_facts: false
+  vars:
+    jenkins_build_number: "{{ lookup('env','BUILD_NUMBER') | default(default_jenkins_build_number, True) }}"
+    ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
   tasks:
   - name: Get sha256 for ramdisk
     stat:
