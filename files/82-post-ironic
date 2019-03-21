@@ -30,3 +30,6 @@ sed -i 's|PasswordAuthentication no|PasswordAuthentication yes|g' /etc/ssh/sshd_
 # remove snapd
 apt -y --purge remove snapd
 apt -y autoremove
+
+# disable mdadm auto assembly
+echo "AUTO -all" >> /etc/mdadm/mdadm.conf
