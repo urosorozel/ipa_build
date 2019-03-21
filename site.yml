@@ -132,11 +132,6 @@
       executable: /bin/bash
     become_user: ubuntu
 
-  - name: Change file permissions
-    file:
-      path: ~/ubuntu-amd64-{{ ubuntu_release }}.kernel
-      mode: 0644
-    become_user: ubuntu
 
   - name: Fetch images ramdisk
     synchronize:
@@ -165,6 +160,12 @@
     jenkins_build_number: "{{ lookup('env','BUILD_NUMBER') | default(default_jenkins_build_number, True) }}"
     ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
   tasks:
+
+  - name: Change file permissions
+    file:
+      path: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel" 
+      mode: 0644
+
   - name: Get sha256 for ramdisk
     stat:
       checksum_algorithm: sha256
