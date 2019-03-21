@@ -156,6 +156,7 @@
 - name: Copy images to webserver path
   hosts: hypervisor
   gather_facts: false
+  tasks:
   - name: Get sha256 for ramdisk
     stat:
       checksum_algorithm: sha256
