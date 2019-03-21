@@ -28,7 +28,8 @@ EOF
 sed -i 's|PasswordAuthentication no|PasswordAuthentication yes|g' /etc/ssh/sshd_config
 
 # remove snapd
-apt -y --purge remove snapd
+apt -y --purge remove snapd liblxc-common liblxc1 lxcfs lxd-client
+apt -y clean
 apt -y autoremove
 
 # disable mdadm auto assembly
