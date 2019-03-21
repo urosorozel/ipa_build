@@ -153,21 +153,20 @@
     tags:
       - fetch-logs
 
+- name: Copy images to webserver path
+  hosts: hypervisor
+  gather_facts: false
   - name: Get sha256 for ramdisk
     stat:
       checksum_algorithm: sha256
       path: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.initramfs"
     register: ramdisk_sha
-    tags:
-      - get-sha256
 
   - name: Get sha256 for kernel
     stat:
       checksum_algorithm: sha256
       path: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel"
     register: kernel_sha
-    tags:
-      - get-sha256
 
   - name: Copy sha256 file for ramdisk
     copy:
