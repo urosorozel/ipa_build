@@ -152,3 +152,39 @@
       mode: pull
     tags:
       - fetch-logs
+
+  - name: Get sha256 for ramdisk
+    stat:
+      checksum_algorithm: sha256
+      path: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.initramfs"
+    register: ramdisk_sha
+    tags:
+      - get-sha256
+
+  - name: Get sha256 for kernel
+    stat:
+      checksum_algorithm: sha256
+      path: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel"
+    register: kernel_sha
+    tags:
+      - get-sha256
+
+  - name: Copy sha256 file for ramdisk
+    copy:
+      content: "{{ramdisk_sha.stat.checksum}} ubuntu_ramdisk"
+      dest: /var/www/html/ubuntu_ramdisk.sha256
+
+  - name: Copy sha256 file for kernel
+    copy:
+      content: "{{kernel_sha.stat.checksum}} ubuntu_kernel"
+      dest: /var/www/html/ubuntu_kernel.sha256
+
+  - name: Copy ramdisk image to web server path
+    synchronize:
+      src:  "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.initramfs"
+      dest: /var/www/html/ubuntu_ramdisk
+
+  - name: Copy kernel image to web server path
+    synchronize:
+      src:  "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel"
+      dest: /var/www/html/ubuntu_kernel
