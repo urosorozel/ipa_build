@@ -34,3 +34,6 @@ apt -y autoremove
 
 # disable mdadm auto assembly
 echo "AUTO -all" >> /etc/mdadm/mdadm.conf
+
+# increase dhcp client timeout to 120
+sed -i 's|timeout 30|timeout 120|g' /etc/dhcp/dhclient.conf
