@@ -42,4 +42,7 @@ sed -i 's|timeout 30|timeout 120|g' /etc/dhcp/dhclient.conf
 sed -i 's|^ExecStart=/lib/systemd/systemd-networkd-wait-online$|ExecStart=/lib/systemd/systemd-networkd-wait-online --timeout=50|g' /lib/systemd/system/systemd-networkd-wait-online.service
 
 # Fix code which retrive memory with lshw
-curl -o /usr/share/ironic-python-agent/venv/local/lib/python2.7/site-packages/ironic_python_agent  https://raw.githubusercontent.com/urosorozel/ironic-python-agent/master_hardware/ironic_python_agent/hardware.py
+curl -o /usr/share/ironic-python-agent/venv/local/lib/python2.7/site-packages/ironic_python_agent/hardware.py  https://raw.githubusercontent.com/urosorozel/ironic-python-agent/master_hardware/ironic_python_agent/hardware.py
+
+# Fix code list_partitions
+curl -o /usr/share/ironic-python-agent/venv/lib/python2.7/site-packages/ironic_lib/disk_utils.py https://raw.githubusercontent.com/urosorozel/ironic-lib/ironic_lib_list_partitions/ironic_lib/disk_utils.py
