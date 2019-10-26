@@ -1,0 +1,48 @@
+#!/bin/bash
+
+echo "Create ipa-rescue-config directory and file"
+mkdir /etc/ipa-rescue-config
+touch /etc/ipa-rescue-config/ipa-rescue-password
+
+echo "Disable ureadahead"
+systemctl disable ureadahead.service
+
+echo "Adding message to /etc/issue"
+cat > /etc/issue <<EOF
+ ██████╗ ██████╗ ███████╗███╗   ██╗███████╗████████╗ █████╗  ██████╗██╗  ██╗
+██╔═══██╗██╔══██╗██╔════╝████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝
+██║   ██║██████╔╝█████╗  ██╔██╗ ██║███████╗   ██║   ███████║██║     █████╔╝
+██║   ██║██╔═══╝ ██╔══╝  ██║╚██╗██║╚════██║   ██║   ██╔══██║██║     ██╔═██╗
+╚██████╔╝██║     ███████╗██║ ╚████║███████║   ██║   ██║  ██║╚██████╗██║  ██╗
+ ╚═════╝ ╚═╝     ╚══════╝╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
+
+██╗██████╗  ██████╗ ███╗   ██╗██╗ ██████╗
+██║██╔══██╗██╔═══██╗████╗  ██║██║██╔════╝
+██║██████╔╝██║   ██║██╔██╗ ██║██║██║
+██║██╔══██╗██║   ██║██║╚██╗██║██║██║
+██║██║  ██║╚██████╔╝██║ ╚████║██║╚██████╗
+╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝ ╚═════╝
+EOF
+
+# Allow password login for rescue user
+sed -i 's|PasswordAuthentication no|PasswordAuthentication yes|g' /etc/ssh/sshd_config
+
+# remove snapd
+apt -y --purge remove snapd liblxc-common liblxc1 lxcfs lxd-client
+apt -y clean
+apt -y autoremove
+
+# disable mdadm auto assembly
+echo "AUTO -all" >> /etc/mdadm/mdadm.conf
+
+# increase dhcp client timeout to 120
+sed -i 's|timeout 30|timeout 120|g' /etc/dhcp/dhclient.conf
+
+# Limit time wait
+sed -i 's|^ExecStart=/lib/systemd/systemd-networkd-wait-online$|ExecStart=/lib/systemd/systemd-networkd-wait-online --timeout=50|g' /lib/systemd/system/systemd-networkd-wait-online.service
+
+# Fix code which retrive memory with lshw
+curl -o /usr/share/ironic-python-agent/venv/local/lib/python2.7/site-packages/ironic_python_agent/hardware.py  https://raw.githubusercontent.com/urosorozel/ironic-python-agent/master_hardware/ironic_python_agent/hardware.py
+
+# Fix code list_partitions
+curl -o /usr/share/ironic-python-agent/venv/lib/python2.7/site-packages/ironic_lib/disk_utils.py https://raw.githubusercontent.com/urosorozel/ironic-lib/ironic_lib_list_partitions/ironic_lib/disk_utils.py

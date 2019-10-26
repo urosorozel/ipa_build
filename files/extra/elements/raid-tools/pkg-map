@@ -1,0 +1,13 @@
+{
+    "family": {
+        "debian": {
+        },
+        "redhat": {
+        },
+        "suse": {
+        }
+    },
+    "default": {
+        "unzip": "unzip"
+    }
+}

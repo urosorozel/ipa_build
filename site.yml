@@ -1,9 +1,25 @@
 ---
-- name: Ubuntu 16 support
+- name: Install base python
   hosts: ipa
   user: ubuntu
   gather_facts: false
-  environment: "{{ proxy_env }}"
+  environment:
+    "{{ proxy_env }}"
+
+  vars:
+    jenkins_build_number: "{{ lookup('env','BUILD_NUMBER') | default(default_jenkins_build_number, True) }}"
+    dib_debug: "{{ lookup('env','DIB_DEBUG') | default(default_dib_debug, True) }}"
+    ipa_strategy: "{{ lookup('env', 'IPA_STRATEGY') | default(default_ipa_strategy, True) }}"
+    ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
+    dib_include_elements: "ubuntu ironic-agent  proliant-tools ilo baremetal devuser ipa-extra-hardware raid-tools"
+    dib_environment:
+      DIB_DEV_USER_SHELL: /bin/bash
+      DIB_DEV_USER_USERNAME: devuser
+      DIB_DEV_USER_PASSWORD: devuser
+      DIB_DEV_USER_PWDLESS_SUDO: yes
+      DIB_RELEASE: "{{ ubuntu_release }}"
+      DIB_DEBUG_TRACE: "{{ dib_debug }}"
+      ELEMENTS_PATH: "/home/ubuntu/dib/extra/elements"
   pre_tasks:
   - name: Install python2 for Ansible
     raw: bash -c "test -e /usr/bin/python || ( export http_proxy={{proxy_env.http_proxy}};apt -qqy update && apt install -qqy python-minimal python2.7)"
@@ -49,8 +65,7 @@
   - name: Install PIP virtualenv
     pip:
       name: virtualenv
-#  - name: Join tasks
-#    block:
+
   - name: Create venv
     shell: |
        virtualenv dib
@@ -58,6 +73,10 @@
     args:
       creates: ~/dib
 
+  - name: Copy extra elements
+    synchronize:
+      src: files/extra
+      dest: ~/dib/
 #  - name: Clone DIB
 #    git:
 #      repo: "https://git.openstack.org/openstack/diskimage-builder"
@@ -79,7 +98,6 @@
       virtualenv: ~/dib
     become_user: ubuntu
 
-
   - name: Create static include
     file:
       dest:  ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/bin
@@ -88,64 +106,94 @@
 
   - name: Copy files to elements
     copy:
-      src: files/udev-bootif.sh
-      dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/bin
-    become_user: ubuntu
-
-  - name: Copy files to elements
-    copy:
-      src: files/81-post-ironic
+      src: files/82-post-ironic
       dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/post-install.d
       mode: 0755
     become_user: ubuntu
 
-  - name: Add packages
-    lineinfile:
-      path: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ubuntu/package-installs.yaml
-      line: "python-netaddr:"
-    become_user: ubuntu
+  - name: Include lacp bond hack with static ip configuration
+    include: static_lacp_bond_ipa.yml
+    when: ipa_strategy == "static"
 
-  - name: Remove dhcp-all-interfaces from deps
-    lineinfile:
-      dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/element-deps
-      state: absent
-      regexp: '^dhcp-all-interfaces$'
-    become_user: ubuntu
-
-  - name: Get DIB_RELEASE variable
-    set_fact:
-      ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(ubuntu_default_release, True) }}"
+  - name: Update rescue user script
+    replace: 
+      path: dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/usr/local/bin/ironic-python-agent-create-rescue-user.sh
+      regexp: "wheel"
+      replace: "sudo"
 
   - name: Create image
     shell: |
       source ~/dib/bin/activate
-      disk-image-create -a amd64 -o ubuntu-amd64-{{ ubuntu_release }}.qcow2 --logfile build.log  ubuntu ironic-agent  proliant-tools ilo baremetal devuser
-    environment:
-      DIB_DEV_USER_SHELL: /bin/bash
-      DIB_DEV_USER_USERNAME: devuser
-      DIB_DEV_USER_PASSWORD: devuser
-      DIB_DEV_USER_PWDLESS_SUDO: yes
-      DIB_RELEASE: "{{ ubuntu_release }}"
-      DIB_DEBUG_TRACE: "{{ jenkins_debug | default(0) }}"
+      disk-image-create -a amd64 -o ubuntu-amd64-{{ ubuntu_release }}.qcow2 --logfile build.log {{ dib_include_elements }}
+      # {% if ipa_strategy == 'dhcp' %}dhcp-all-interfaces{% endif %}
+    environment: "{{ dib_environment }}"
     args:
       chdir: ~/
       executable: /bin/bash
     become_user: ubuntu
 
+
   - name: Fetch images ramdisk
-    fetch:
+    synchronize:
       src: ubuntu-amd64-{{ ubuntu_release }}.initramfs
-      dest: "/data/ipa_images/{{ lookup('env','BUILD_NUMBER') }}_ubuntu-amd64-{{ ubuntu_release }}.initramfs"
-      flat: yes
+      dest: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.initramfs"
+      mode: pull
 
   - name: Fetch images kernel
-    fetch:
+    synchronize:
       src: ubuntu-amd64-{{ ubuntu_release }}.kernel
-      dest: "/data/ipa_images/{{ lookup('env','BUILD_NUMBER') }}_ubuntu-amd64-{{ ubuntu_release }}.kernel"
-      flat: yes
+      dest: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel"
+      mode: pull
 
   - name: Fetch build.log
-    fetch:
+    synchronize:
       src: build.log
-      dest: "{{ lookup('env','BUILD_NUMBER') }}_build.log"
-      flat: yes
+      dest: "{{ jenkins_build_number }}_build.log"
+      mode: pull
+    tags:
+      - fetch-logs
+
+- name: Copy images to webserver path
+  hosts: hypervisor
+  gather_facts: false
+  vars:
+    jenkins_build_number: "{{ lookup('env','BUILD_NUMBER') | default(default_jenkins_build_number, True) }}"
+    ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
+  tasks:
+
+  - name: Change file permissions
+    file:
+      path: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel" 
+      mode: 0644
+
+  - name: Get sha256 for ramdisk
+    stat:
+      checksum_algorithm: sha256
+      path: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.initramfs"
+    register: ramdisk_sha
+
+  - name: Get sha256 for kernel
+    stat:
+      checksum_algorithm: sha256
+      path: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel"
+    register: kernel_sha
+
+  - name: Copy sha256 file for ramdisk
+    copy:
+      content: "{{ramdisk_sha.stat.checksum}} ubuntu_ramdisk"
+      dest: /var/www/html/ubuntu_ramdisk.sha256
+
+  - name: Copy sha256 file for kernel
+    copy:
+      content: "{{kernel_sha.stat.checksum}} ubuntu_kernel"
+      dest: /var/www/html/ubuntu_kernel.sha256
+
+  - name: Copy ramdisk image to web server path
+    synchronize:
+      src:  "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.initramfs"
+      dest: /var/www/html/ubuntu_ramdisk
+
+  - name: Copy kernel image to web server path
+    synchronize:
+      src:  "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel"
+      dest: /var/www/html/ubuntu_kernel
