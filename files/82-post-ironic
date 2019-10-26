@@ -43,3 +43,6 @@ sed -i 's|^ExecStart=/lib/systemd/systemd-networkd-wait-online$|ExecStart=/lib/s
 
 # Remove LVM
 apt -y remove lvm2 --purge
+
+# Add dhcp client class
+sed -i '/send host-name = gethostname();/a send vendor-class-identifier = "ironic-inspector";'  /etc/dhcp/dhclient.conf
