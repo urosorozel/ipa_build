@@ -20,7 +20,7 @@
       DIB_REPOREF_ironic_python_agent: origin/stable/stein
       DIB_RELEASE: "{{ ubuntu_release }}"
       DIB_DEBUG_TRACE: "{{ dib_debug }}"
-      ELEMENTS_PATH: "{{ lookup('env','HOME') }}/dib/extra/elements:{{ lookup('env','HOME') }}/dib/share/ironic-python-agent-builder/dib"
+      ELEMENTS_PATH: "/home/ubuntu/dib/extra/elements:/home/ubuntu/dib/share/ironic-python-agent-builder/dib"
   pre_tasks:
   - name: Install python2 for Ansible
     raw: bash -c "test -e /usr/bin/python || ( export http_proxy={{proxy_env.http_proxy}};apt -qqy update && apt install -qqy python-minimal python2.7)"
