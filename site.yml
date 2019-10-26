@@ -11,7 +11,7 @@
     dib_debug: "{{ lookup('env','DIB_DEBUG') | default(default_dib_debug, True) }}"
     ipa_strategy: "{{ lookup('env', 'IPA_STRATEGY') | default(default_ipa_strategy, True) }}"
     ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
-    dib_include_elements: "ubuntu ironic-python-agent-ramdisk proliant-tools ilo baremetal devuser ipa-extra-hardware raid-tools"
+    dib_include_elements: "ubuntu ironic-python-agent-ramdisk proliant-tools ilo baremetal devuser ipa-extra-hardware raid-tools clean-tasks"
     dib_environment:
       DIB_DEV_USER_SHELL: /bin/bash
       DIB_DEV_USER_USERNAME: devuser
@@ -105,28 +105,13 @@
       virtualenv: ~/dib
     become_user: ubuntu
 
-  - name: Create static include
-    file:
-      dest:  ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/bin
-      state: directory
+  - name: Remove dhcp-all-interfaces from deps
+    lineinfile:
+      dest: ~/dib/share/ironic-python-agent-builder/dib/ironic-python-agent-ramdisk/element-deps
+      state: absent
+      regexp: '^dhcp-all-interfaces$'
     become_user: ubuntu
-
-  - name: Copy files to elements
-    copy:
-      src: files/82-post-ironic
-      dest: ~/dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/post-install.d
-      mode: 0755
-    become_user: ubuntu
-
-  - name: Include lacp bond hack with static ip configuration
-    include: static_lacp_bond_ipa.yml
     when: ipa_strategy == "static"
-
-  - name: Update rescue user script
-    replace: 
-      path: dib/lib/python2.7/site-packages/diskimage_builder/elements/ironic-agent/static/usr/local/bin/ironic-python-agent-create-rescue-user.sh
-      regexp: "wheel"
-      replace: "sudo"
 
   - name: Create image
     shell: |
