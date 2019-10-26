@@ -11,15 +11,16 @@
     dib_debug: "{{ lookup('env','DIB_DEBUG') | default(default_dib_debug, True) }}"
     ipa_strategy: "{{ lookup('env', 'IPA_STRATEGY') | default(default_ipa_strategy, True) }}"
     ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
-    dib_include_elements: "ubuntu ironic-agent  proliant-tools ilo baremetal devuser ipa-extra-hardware raid-tools"
+    dib_include_elements: "ubuntu ironic-python-agent-ramdisk proliant-tools ilo baremetal devuser ipa-extra-hardware raid-tools"
     dib_environment:
       DIB_DEV_USER_SHELL: /bin/bash
       DIB_DEV_USER_USERNAME: devuser
       DIB_DEV_USER_PASSWORD: devuser
       DIB_DEV_USER_PWDLESS_SUDO: yes
+      DIB_REPOREF_ironic_python_agent: origin/stable/stein
       DIB_RELEASE: "{{ ubuntu_release }}"
       DIB_DEBUG_TRACE: "{{ dib_debug }}"
-      ELEMENTS_PATH: "/home/ubuntu/dib/extra/elements"
+      ELEMENTS_PATH: "/$HOME/dib/extra/elements:$HOME/dib/share/ironic-python-agent-builder/dib"
   pre_tasks:
   - name: Install python2 for Ansible
     raw: bash -c "test -e /usr/bin/python || ( export http_proxy={{proxy_env.http_proxy}};apt -qqy update && apt install -qqy python-minimal python2.7)"
@@ -95,6 +96,12 @@
   - name: Install diskimage-builder
     pip:
       name: diskimage-builder
+      virtualenv: ~/dib
+    become_user: ubuntu
+
+  - name: Install diskimage-builder
+    pip:
+      name: ironic-python-agent-builder
       virtualenv: ~/dib
     become_user: ubuntu
 
