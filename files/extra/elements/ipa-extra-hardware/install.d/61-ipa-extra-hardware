@@ -6,11 +6,15 @@ fi
 set -eu
 set -o pipefail
 
-IPADIR=/usr/share/ironic-python-agent
+SCRIPTDIR=$(dirname $0)
+IPADIR=/tmp/ironic-python-agent
+VENVDIR=/opt/ironic-python-agent
+
 PACKAGE=${DIB_IPA_HARDWARE_PACKAGE:-hardware${DIB_IPA_HARDWARE_VERSION:+==}${DIB_IPA_HARDWARE_VERSION:-}}
 
+
 # Install the python hardware package inside the virtual environment.
-$IPADIR/venv/bin/pip install -c $IPADIR/upper-constraints.txt $PACKAGE
+$VENVDIR/bin/pip install -c $IPADIR/upper-constraints.txt $PACKAGE
 
 # Because the ironic-python-agent systemd unit does not activate the virtualenv
 # before executing the ironic-python-agent script, the PATH is not updated to
