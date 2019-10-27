@@ -20,7 +20,7 @@ $VENVDIR/bin/pip install -c $IPADIR/upper-constraints.txt $PACKAGE
 # before executing the ironic-python-agent script, the PATH is not updated to
 # point to the bin directory in the virtual environment. We add this symlink so
 # that ironic-python-agent sees the hardware-detect tool in its PATH.
-ln -s $IPADIR/venv/bin/hardware-detect /usr/local/bin/hardware-detect
+ln -s $VENVDIR/bin/hardware-detect /usr/local/bin/hardware-detect
 
 # Install additional packages as requested.
 if [[ -n ${DIB_IPA_EXTRA_HARDWARE_PACKAGES:-} ]]; then
