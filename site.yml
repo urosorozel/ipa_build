@@ -63,6 +63,7 @@
       dest: "/usr/local/share/ca-certificates/ca-bundle.crt"
     register: cabundle
     when: ca_bundle is defined
+    environment: "{{ dib_environment }}"
 
   - name: Update certificates
     command: update-ca-certificates
