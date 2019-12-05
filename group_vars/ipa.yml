@@ -3,3 +3,5 @@ default_ipa_strategy: "dhcp"
 default_jenkins_build_number: "no_build_number"
 # Disk image debug trace level
 default_dib_debug: 0
+# CA certificate path
+default_ca_bundle:

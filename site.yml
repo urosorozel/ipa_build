@@ -12,7 +12,9 @@
     ipa_strategy: "{{ lookup('env', 'IPA_STRATEGY') | default(default_ipa_strategy, True) }}"
     ubuntu_release: "{{ lookup('env','DIB_RELEASE') | default(default_ubuntu_release, True) }}"
     dib_include_elements: "ubuntu ironic-python-agent-ramdisk proliant-tools ilo baremetal devuser ipa-extra-hardware raid-tools clean-tasks"
+    ca_bundle: "{{ lookup('env','CA_BUNDLE') | default(default_ca_bundle, True) }}"
     dib_environment:
+      REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
       DIB_DEV_USER_SHELL: /bin/bash
       DIB_DEV_USER_USERNAME: devuser
       DIB_DEV_USER_PASSWORD: devuser
@@ -23,7 +25,7 @@
       ELEMENTS_PATH: "/home/ubuntu/dib/extra/elements:/home/ubuntu/dib/share/ironic-python-agent-builder/dib"
   pre_tasks:
   - name: Install python2 for Ansible
-    raw: bash -c "test -e /usr/bin/python || ( export http_proxy={{proxy_env.http_proxy}};apt -qqy update && apt install -qqy python-minimal python2.7)"
+    raw: bash -c "test -e /usr/bin/python || ( export http_proxy={{ proxy_env.http_proxy }};apt -qqy update && apt install -qqy python-minimal python2.7)"
     register: output
     changed_when:
     - output.stdout != ""
@@ -54,6 +56,17 @@
       regexp: '^https_proxy='
       line: 'https_proxy={{ proxy_env.https_proxy }}'
     when: proxy_env and proxy_env.https_proxy
+
+  - name: Copy CA bundle
+    copy:
+      src: "{{ ca_bundle }}"
+      dest: "/usr/local/share/ca-certificates/ca-bundle.crt"
+    register: cabundle
+    when: ca_bundle is defined
+
+  - name: Update certificates
+    command: update-ca-certificates
+    when: cabundle.changed
 
   - name: Install required packages
     apt:
@@ -155,7 +168,7 @@
 
   - name: Change file permissions
     file:
-      path: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel" 
+      path: "/data/ipa_images/{{ jenkins_build_number }}_ubuntu-amd64-{{ ubuntu_release }}.kernel"
       mode: 0644
 
   - name: Get sha256 for ramdisk
