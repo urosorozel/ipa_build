@@ -28,20 +28,24 @@
     raw: bash -c "test -e /usr/bin/python || ( export http_proxy={{ proxy_env.http_proxy }};apt -qqy update && apt install -qqy python-minimal python2.7)"
     register: output
     changed_when:
-    - output.stdout != ""
+    - output.stdout is not defined
     - output.stdout != "\r\n"
   - name: Gathering Facts
     setup:
 
   tasks:
   - name: Create a new file for APT config
-    file: path=/etc/apt/apt.conf.d/10disable-auto-apt  state=touch
+    file:
+      path: /etc/apt/apt.conf.d/10disable-auto-apt
+      state: touch
+    become: yes
 
   - name: Disable Automatic APT
     lineinfile:
       dest: /etc/apt/apt.conf.d/10disable-auto-apt
       line: 'APT::Periodic::Enable "0";'
       state: present
+    become: yes
 
   - name: Add proxy settings
     lineinfile:
@@ -49,6 +53,7 @@
       regexp: '^http_proxy='
       line: 'http_proxy={{ proxy_env.http_proxy }}'
     when: proxy_env and proxy_env.http_proxy
+    become: yes
 
   - name: Add proxy settings
     lineinfile:
@@ -56,6 +61,7 @@
       regexp: '^https_proxy='
       line: 'https_proxy={{ proxy_env.https_proxy }}'
     when: proxy_env and proxy_env.https_proxy
+    become: yes
 
   - name: Copy CA bundle
     copy:
@@ -63,10 +69,12 @@
       dest: "/usr/local/share/ca-certificates/ca-bundle.crt"
     register: cabundle
     when: ca_bundle is defined
+    become: yes
 
   - name: Update certificates
     command: update-ca-certificates
     when: cabundle.changed
+    become: yes
 
   - name: Install required packages
     apt:
@@ -75,6 +83,7 @@
     with_items:
       - python-pip
       - qemu-utils
+    become: yes
 
   - name: Install PIP virtualenv
     pip:
@@ -83,7 +92,6 @@
   - name: Create venv
     shell: |
        virtualenv dib
-    become_user: ubuntu
     args:
       creates: ~/dib
 
@@ -98,12 +106,10 @@
       dest: "~/dib/extra/elements/clean-tasks/static/usr/local/share/ca-certificates/ca-bundle.crt"
     register: cabundle
     when: ca_bundle is defined
-    become_user: ubuntu
 #  - name: Clone DIB
 #    git:
 #      repo: "https://git.openstack.org/openstack/diskimage-builder"
 #      dest: ~/dib/diskimage-builder
-#    become_user: ubuntu
 
 #  - name: Run PIP
 #    shell: |
@@ -112,26 +118,22 @@
 #      pip install -e .
 #    args:
 #      chdir: ~/dib
-#    become_user: ubuntu
 
   - name: Install diskimage-builder
     pip:
       name: diskimage-builder
       virtualenv: ~/dib
-    become_user: ubuntu
 
   - name: Install diskimage-builder
     pip:
       name: ironic-python-agent-builder
       virtualenv: ~/dib
-    become_user: ubuntu
 
   - name: Remove dhcp-all-interfaces from deps
     lineinfile:
       dest: ~/dib/share/ironic-python-agent-builder/dib/ironic-python-agent-ramdisk/element-deps
       state: absent
       regexp: '^dhcp-all-interfaces$'
-    become_user: ubuntu
     when: ipa_strategy == "static"
 
   - name: Create image
@@ -143,7 +145,6 @@
     args:
       chdir: ~/
       executable: /bin/bash
-    become_user: ubuntu
 
 
   - name: Fetch images ramdisk
@@ -193,12 +194,12 @@
 
   - name: Copy sha256 file for ramdisk
     copy:
-      content: "{{ramdisk_sha.stat.checksum}} ubuntu_ramdisk"
+      content: "{{ ramdisk_sha.stat.checksum }} ubuntu_ramdisk"
       dest: /var/www/html/ubuntu_ramdisk.sha256
 
   - name: Copy sha256 file for kernel
     copy:
-      content: "{{kernel_sha.stat.checksum}} ubuntu_kernel"
+      content: "{{ kernel_sha.stat.checksum }} ubuntu_kernel"
       dest: /var/www/html/ubuntu_kernel.sha256
 
   - name: Copy ramdisk image to web server path
