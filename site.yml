@@ -98,6 +98,7 @@
       dest: "~/dib/extra/elements/clean-tasks/static/usr/local/share/ca-certificates/ca-bundle.crt"
     register: cabundle
     when: ca_bundle is defined
+    become_user: ubuntu
 #  - name: Clone DIB
 #    git:
 #      repo: "https://git.openstack.org/openstack/diskimage-builder"
