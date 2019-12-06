@@ -8,6 +8,6 @@ set -eu
 set -o pipefail
 
 
-if [[ $DISTRO_NAME = &quot;ubuntu&quot; || $DISTRO_NAME = &quot;debian&quot; ]]; then
+if [[ $DISTRO_NAME = "ubuntu" || $DISTRO_NAME = "debian" ]]; then
  update-ca-certificates
 fi
