@@ -12,6 +12,8 @@ VENVDIR=/opt/ironic-python-agent
 
 PACKAGE=${DIB_IPA_HARDWARE_PACKAGE:-hardware${DIB_IPA_HARDWARE_VERSION:+==}${DIB_IPA_HARDWARE_VERSION:-}}
 
+# Generate upper-constraints
+$IPADIR/imagebuild/common/generate_upper_constraints.sh $IPADIR/upper-constraints.txt
 
 # Install the python hardware package inside the virtual environment.
 $VENVDIR/bin/pip install -c $IPADIR/upper-constraints.txt $PACKAGE

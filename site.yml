@@ -63,7 +63,6 @@
       dest: "/usr/local/share/ca-certificates/ca-bundle.crt"
     register: cabundle
     when: ca_bundle is defined
-    environment: "{{ dib_environment }}"
 
   - name: Update certificates
     command: update-ca-certificates
@@ -92,6 +91,13 @@
     synchronize:
       src: files/extra
       dest: ~/dib/
+
+  - name: Copy CA bundle
+    copy:
+      src: "{{ ca_bundle }}"
+      dest: "~/dib/extra/elements/clean-tasks/static/usr/local/share/ca-certificates/ca-bundle.crt"
+    register: cabundle
+    when: ca_bundle is defined
 #  - name: Clone DIB
 #    git:
 #      repo: "https://git.openstack.org/openstack/diskimage-builder"
