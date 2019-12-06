@@ -30,6 +30,8 @@
     changed_when:
     - output.stdout is not defined
     - output.stdout != "\r\n"
+    become: yes
+
   - name: Gathering Facts
     setup:
 
@@ -88,6 +90,7 @@
   - name: Install PIP virtualenv
     pip:
       name: virtualenv
+    become: yes
 
   - name: Create venv
     shell: |
