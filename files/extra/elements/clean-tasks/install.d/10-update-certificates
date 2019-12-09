@@ -7,6 +7,10 @@ fi
 set -eu
 set -o pipefail
 
+cat > /etc/pip.conf <<EOF
+[global]
+cert = /etc/ssl/certs/ca-certificates.crt
+EOF
 
 if [[ $DISTRO_NAME = "ubuntu" || $DISTRO_NAME = "debian" ]]; then
  update-ca-certificates
