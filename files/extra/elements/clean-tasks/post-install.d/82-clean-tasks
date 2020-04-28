@@ -6,6 +6,7 @@ touch /etc/ipa-rescue-config/ipa-rescue-password
 
 echo "Disable ureadahead"
 systemctl disable ureadahead.service
+systemctl disable smartd.service
 
 echo "Adding message to /etc/issue"
 cat > /etc/issue <<EOF
@@ -27,8 +28,11 @@ EOF
 # Allow password login for rescue user
 sed -i 's|PasswordAuthentication no|PasswordAuthentication yes|g' /etc/ssh/sshd_config
 
+# Disable motd news
+sed -i 's|ENABLED=1|ENABLED=0|g' /etc/default/motd-news
+
 # remove snapd
-apt -y --purge remove snapd liblxc-common liblxc1 lxcfs lxd-client
+apt -y --purge remove snapd liblxc-common liblxc1 lxcfs lxd-client postfix at alien
 apt -y clean
 apt -y autoremove
 
