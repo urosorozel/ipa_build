@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Delay start because of LACP bonding
+echo "Add delay service start for IPA"
+mkdir -p /etc/systemd/system/ironic-python-agent.service.d
+cat > /etc/systemd/system/ironic-python-agent.service.d/delay.conf <<EOF
+[Service]
+ExecStartPre=/bin/sleep 45
+EOF
+
+echo "Add udev rules service"
+mkdir /etc/systemd/system/systemd-udevd.service.d
+cat > /etc/systemd/system/systemd-udevd.service.d/10-bootif.conf  <<EOF
+[Service]
+ExecStartPre=-/bin/udev-bootif.sh
+EOF
+
+# Add netplan config
+mkdir /etc/netplan
+cat > /etc/netplan/bond.yaml << EOF
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        port1:
+            match:
+                name: enoboot0
+        port2:
+            match:
+                name: enoboot1
+    bonds:
+        bond0:
+            dhcp4: yes
+            interfaces:
+            - port1
+            - port2
+            parameters:
+                mode: 802.3ad
+                mii-monitor-interval: 100
+EOF
+
+# Bonding
+cat > /etc/modprobe.d/systemd.conf << EOF
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+#
+# When bonding module is loaded, it creates bond0 by default due to max_bonds
+# option default value 1. This interferes with the network configuration
+# management / networkd, as it is not possible to detect whether this bond0 was
+# intentionally configured by the user, or should be managed by
+# networkd/NM/etc. Therefore disable bond0 creation.
+options bonding max_bonds=0
+EOF
+
+# remove /lib/systemd/network/99-default.link to be able to get member mac address
+# it othwrwise gets configured with random mac
+rm /lib/systemd/network/99-default.link
