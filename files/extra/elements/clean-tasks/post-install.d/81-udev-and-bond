@@ -29,8 +29,7 @@ network:
             match:
                 name: enoboot1
     bonds:
-        bond0:
-            macaddress: BOOTIF
+        bonding0:
             dhcp4: yes
             interfaces:
             - port1
@@ -54,7 +53,7 @@ cat > /etc/modprobe.d/systemd.conf << EOF
 # management / networkd, as it is not possible to detect whether this bond0 was
 # intentionally configured by the user, or should be managed by
 # networkd/NM/etc. Therefore disable bond0 creation.
-options bonding max_bonds=0
+#options bonding max_bonds=0
 EOF
 
 # remove /lib/systemd/network/99-default.link to be able to get member mac address
