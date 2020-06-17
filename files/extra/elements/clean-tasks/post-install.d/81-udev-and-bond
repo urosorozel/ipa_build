@@ -30,6 +30,7 @@ network:
                 name: enoboot1
     bonds:
         bond0:
+            macaddress: BOOTIF
             dhcp4: yes
             interfaces:
             - port1
