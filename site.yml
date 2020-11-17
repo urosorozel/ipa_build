@@ -19,7 +19,7 @@
       DIB_DEV_USER_USERNAME: devuser
       DIB_DEV_USER_PASSWORD: devuser
       DIB_DEV_USER_PWDLESS_SUDO: yes
-      DIB_REPOREF_ironic_python_agent: origin/stable/train
+      DIB_REPOREF_ironic_python_agent: origin/stable/ussuri
       DIB_RELEASE: "{{ ubuntu_release }}"
       DIB_DEBUG_TRACE: "{{ dib_debug }}"
       ELEMENTS_PATH: "/home/ubuntu/dib/extra/elements:/home/ubuntu/dib/share/ironic-python-agent-builder/dib"
