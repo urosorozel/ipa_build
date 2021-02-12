@@ -3,7 +3,7 @@
 BOOT_MAC=$(/bin/cat /proc/cmdline | egrep -o  'BOOTIF=([^ ]+)')
 BOOT_MAC=${BOOT_MAC//-/:}
 # Remove leading 00: if mac is 20 chars long
-if [ ${#BOOT_MAC} -eq 20 ];then
+if [ ${#BOOT_MAC} -eq 27 ];then
   BOOT_MAC=${BOOT_MAC#*:}
 else
   BOOT_MAC=${BOOT_MAC#*=}
